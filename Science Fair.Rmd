@@ -1,0 +1,109 @@
+---
+title: "Science Fair GO/Pathway"
+output: html_document
+date: "2023-02-17"
+---
+```{r}
+install.packages("readxl")
+library(readxl)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r}
+CarSig <- read_excel("/Users/bigricce1227/Documents/Overlap/O_Tables/Carbamazepine Sig.xlsx")
+ValSig <- read_excel("/Users/bigricce1227/Documents/Overlap/O_Tables/Valproate Sig.xlsx")
+PheSig <- read_excel("/Users/bigricce1227/Documents/Overlap/O_Tables/Phenytoin Sig.xlsx")
+CarVal <- read_excel("/Users/bigricce1227/Documents/Overlap/O_Tables/Carbamazepine-Valproate Overlap.xlsx")
+ValPhe <- read_excel("/Users/bigricce1227/Documents/Overlap/O_Tables/Valproate-Phenytoin Overlap.xlsx")
+PheCar <- read_excel("/Users/bigricce1227/Documents/Overlap/O_Tables/Phenytoin-Carbamazepine Overlap.xlsx")
+CarValPhe <- read_excel("/Users/bigricce1227/Documents/Overlap/O_Tables/Carbamazepine-Valproate-Phenytoin Overlap.xlsx")
+```
+
+```{r}
+if(!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("clusterProfiler")
+BiocManager::install("AnnotationDbi")
+BiocManager::install("org.Hs.eg.db")
+BiocManager::install("rlist")
+```
+
+```{r}
+library(clusterProfiler)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+library(rlist)
+```
+
+```{r}
+Genes <- list(CarSig$Probeset, ValSig$Probeset, PheSig$Probeset)
+GO_list <- list()
+```
+
+```{r}
+GO_res <- (enrichGO(gene = CarSig$Probeset, OrgDb = "org.Hs.eg.db", keyType = "SYMBOL", ont = "ALL"))
+GO_list <- c(list(GO_res), GO_list)
+GO_res <- (enrichGO(gene = ValSig$Probeset, OrgDb = "org.Hs.eg.db", keyType = "SYMBOL", ont = "ALL"))
+GO_list <- c(list(GO_res), GO_list)
+GO_res <- (enrichGO(gene = PheSig$Probeset, OrgDb = "org.Hs.eg.db", keyType = "SYMBOL", ont = "ALL"))
+GO_list <- c(list(GO_res), GO_list)
+```
+
+```{r}
+BiocManager::install("enrichR")
+library(enrichR)
+```
+
+```{r}
+CarPath <- dplyr::filter(enrichr(CarSig$Probeset, c("KEGG_2021_Human"))[["KEGG_2021_Human"]], P.value < 0.05)
+ValPath <- dplyr::filter(enrichr(ValSig$Probeset, c("KEGG_2021_Human"))[["KEGG_2021_Human"]], P.value < 0.05)
+PhePath <- dplyr::filter(enrichr(PheSig$Probeset, c("KEGG_2021_Human"))[["KEGG_2021_Human"]], P.value < 0.05)
+```
+```{r}
+CarPath <- dplyr::filter(enrichr(CarSig$Probeset, c("KEGG_2021_Human"))[["KEGG_2021_Human"]], P.value < 0.05)
+ValPath <- dplyr::filter(enrichr(ValSig$Probeset, c("KEGG_2021_Human"))[["KEGG_2021_Human"]], P.value < 0.05)
+PhePath <- dplyr::filter(enrichr(PheSig$Probeset, c("KEGG_2021_Human"))[["KEGG_2021_Human"]], P.value < 0.05)
+```
+
+```{r}
+BiocManager::install("clusterProfiler")
+BiocManager::install("AnnotationDbi")
+BiocManager::install("org.Hs.eg.db")
+```
+
+```{r}
+library(clusterProfiler)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+```
+
+```{r}
+CarGO <- enrichGO(CarSig$Probeset, OrgDb = "org.Hs.eg.db", keyType = "SYMBOL", ont = "ALL", pvalueCutoff = 0.05)
+ValGO <- enrichGO(ValSig$Probeset, OrgDb = "org.Hs.eg.db", keyType = "SYMBOL", ont = "ALL", pvalueCutoff = 0.05)
+PheGO <- enrichGO(PheSig$Probeset, OrgDb = "org.Hs.eg.db", keyType = "SYMBOL", ont = "ALL", pvalueCutoff = 0.05)
+```
+
+```{r}
+fit <- plot(barplot(PheGO, showCategory = 10))
+
+png("PheGO.png", res = 250, width = 2500, height = 2000)
+print(fit)
+dev.off()
+
+fit
+```
+
+```{r}
+PathList <- list(CarPath, ValPath, PhePath)
+```
+
+```{r}
+pibase <- 0
+for(i in 1:1000000){
+  if((runif(1)^2+runif(1)^2)<1){pibase=pibase+1}
+}
+print(pibase/i*4)
+```
